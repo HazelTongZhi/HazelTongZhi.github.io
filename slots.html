@@ -1,0 +1,178 @@
+<!--
+Author: Hazel
+This is the slots game
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Hazeltorium</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: url('newbanner.png');
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed;
+            color: #fff;
+        }
+
+        .new-page {
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        .top-left-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 999;
+        }
+
+
+        #slot-machine {
+            display: flex;
+            border: 2px solid #333;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+
+        .reel {
+            width: 50px;
+            height: 50px;
+            margin: 0 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+        }
+
+        #spin-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        #spin-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        #result-message {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #333;
+            font-weight: 900;
+            -webkit-text-stroke: 1px rgb(241, 241, 89);
+        }
+
+        #scoreboard {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #ffffff;
+            font-weight: 900;
+            -webkit-text-stroke: 1px black;
+        }
+    </style>
+</head>
+<body>
+    <a class="top-left-button" href="plinko.html">
+        <button class="new-page">Go to Horse Plinko!</button>
+    </a>
+    
+    <div id="slot-machine">
+        <div class="reel" id="reel1">🍒</div>
+        <div class="reel" id="reel2">🍋</div>
+        <div class="reel" id="reel3">🍉</div>
+    </div>
+    <button id="spin-button">Spin</button>
+    <div id="result-message"></div>
+    <div id="scoreboard">
+        <p>Total Wins: <span id="total-wins">0</span></p>
+        <p>Total Losses: <span id="total-losses">0</span></p>
+    </div>
+
+    <!-- Include the canvas-confetti library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script>
+        let totalWins = 0;
+        let totalLosses = 0;
+        let spinDelay = 600; // Delay between spins in milliseconds
+
+        document.getElementById('spin-button').addEventListener('click', spin);
+
+        function spin() {
+            const reels = ['🍒', '🍋', '🍉', '🍇', '🍓', '🍌'];
+            let reel1 = document.getElementById('reel1');
+            let reel2 = document.getElementById('reel2');
+            let reel3 = document.getElementById('reel3');
+            let resultMessage = document.getElementById('result-message');
+            let spinButton = document.getElementById('spin-button');
+
+            // Disable the spin button during the spin
+            spinButton.disabled = true;
+
+            // Function to simulate spinning with a delay
+            function spinReel(reel, delay) {
+                return new Promise((resolve) => {
+                    let count = 0;
+                    let spinInterval = setInterval(() => {
+                        reel.textContent = reels[Math.floor(Math.random() * reels.length)];
+                        count++;
+                        if (count > 10) {
+                            clearInterval(spinInterval);
+                            resolve();
+                        }
+                    }, delay);
+                });
+            }
+
+            // Function to trigger confetti
+            function triggerConfetti() {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+
+            // Spin each reel with a slight delay between each
+            Promise.all([spinReel(reel1, 100), spinReel(reel2, 150), spinReel(reel3, 200)])
+                .then(() => {
+                    // Check for a win
+                    if (reel1.textContent === reel2.textContent && reel2.textContent === reel3.textContent) {
+                        resultMessage.textContent = 'You win!';
+                        resultMessage.style.color = 'green';
+                        totalWins++;
+                        document.getElementById('total-wins').textContent = totalWins;
+                        triggerConfetti();
+                    } else {
+                        resultMessage.textContent = 'Try again!';
+                        resultMessage.style.color = 'red';
+                        totalLosses++;
+                        document.getElementById('total-losses').textContent = totalLosses;
+                    }
+
+                    // Re-enable the spin button after the delay
+                    setTimeout(() => {
+                        spinButton.disabled = false;
+                    }, spinDelay);
+                });
+        }
+    </script>
+</body>
+</html>

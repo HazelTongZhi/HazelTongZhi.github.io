@@ -3,11 +3,6 @@ Author: Hazel
 This is the pachinko machine game
 -->
 
-<!--
-Author: Hazel
-This is the pachinko machine game
--->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -93,7 +88,7 @@ This is the pachinko machine game
 
   <h1 class="border">Horse Plinko</h1>
   <div class="scoreboard">
-    Balls: <span id="ball-count">5</span> | Score: <span id="score">0</span>
+    Balls: <span id="ball-count">10</span> | Score: <span id="score">0</span>
   </div>
   <div class="board">
     <canvas id="gameCanvas" width="300" height="380"></canvas>
@@ -115,7 +110,7 @@ This is the pachinko machine game
     const slotWidth = canvas.width / slots.length;
     let balls = [];
     let score = 0;
-    let ballCount = 5;
+    let ballCount = 10;
     let dropperX = canvas.width / 2;
     let dropperDirection = 1;
     let gameEnded = false;
