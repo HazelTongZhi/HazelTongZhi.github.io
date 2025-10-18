@@ -48,6 +48,19 @@ This is the main home page.
             border:4px solid var(--accent)
         }
 
+        /* Tailer image */
+        .tailer{
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            margin-bottom:18px
+        }
+        .tailer img{
+            max-width:100%;
+            height:auto;
+            box-shadow:0 6px 18px rgba(17,24,39,0.06);
+        }
+
         /* Menu */
         .menu{
             display:flex;
@@ -141,18 +154,18 @@ This is the main home page.
 </head>
 <body>
     <div class="container">
-    <div class="header">
-        <img src="tiananmen2.png" alt="Header Image">
-    </div>
+        <div class="header">
+            <img src="tiananmen2.png" alt="Header Image">
+        </div>
 
-    <!-- Menu bar with buttons -->
-    <div class="menu" role="navigation" aria-label="Main menu">
-        <a href="index.html">Home</a>
-        <a href="index.html">Games</a>
-        <a href="index.html">Art</a>
-        <a href="index.html">Projects</a>
-        <a href="https://www.tumblr.com/blog/primierhazel">Blog</a>
-    </div>
+        <!-- Menu bar with buttons -->
+        <div class="menu" role="navigation" aria-label="Main menu">
+            <a href="index.html">Home</a>
+            <a href="index.html">Games</a>
+            <a href="index.html">Art</a>
+            <a href="index.html">Projects</a>
+            <a href="https://www.tumblr.com/blog/primierhazel">Blog</a>
+        </div>
 
         <!-- Text block 1 -->
         <section class="card" aria-labelledby="main-heading">
@@ -211,6 +224,12 @@ This is the main home page.
                 Email: hazeltongzhi@gmail.com
             </p>
         </section>
+
+        <!-- Desk -->
+        <div class="tailer">
+            <img src="ourdayiscoming.png">
+        </div>
+        
     </div>
 </body>
 </html>
