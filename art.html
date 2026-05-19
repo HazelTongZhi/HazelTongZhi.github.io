@@ -138,6 +138,10 @@
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             object-fit: contain;
+            /* Disable native image dragging */
+            -webkit-user-drag: none;
+            user-select: none;
+            pointer-events: auto;  /* keep clickable for lightbox */
         }
 
         /* Lightbox modal */
@@ -276,6 +280,8 @@
                 img.src = src;
                 img.alt = gallery.title;
                 img.loading = 'lazy';
+                // Prevent native image drag
+                img.draggable = false;
                 // Lightbox click handler
                 img.addEventListener('click', (e) => {
                     e.stopPropagation();
