@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery | The Hazeltorium</title>
+    <style>
+        :root {
+            --accent: #ffec1e;
+            --muted: #311616;
+            --card: #ff2f2f;
+            --button: #b61919;
+            font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 32px auto;
+            padding: 16px;
+        }
+
+        body {
+            font-family: sans-serif;
+            background: url('PageAssets/newbanner.png');
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+        .header img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 6px 18px rgba(17,24,39,0.06);
+            border: 4px solid var(--accent);
+        }
+
+        .tailer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 18px;
+            margin-top: 20px;
+        }
+        .tailer img {
+            max-width: 100%;
+            height: auto;
+            box-shadow: 0 6px 18px rgba(17,24,39,0.06);
+        }
+
+        .menu {
+            display: flex;
+            justify-content: center;
+            background: var(--card);
+            border-radius: 10px;
+            padding: 10px 12px;
+            gap: 8px;
+            box-shadow: 0 4px 14px rgba(17,24,39,0.04);
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+        .menu a {
+            display: inline-block;
+            border: 0;
+            padding: 10px 16px;
+            border-radius: 8px;
+            background: var(--button);
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            color: var(--accent);
+            transition: background 0.2s, color 0.2s;
+        }
+        .menu a:hover {
+            background: rgba(37,99,235,0.08);
+        }
+
+        /* Gallery card – one per gallery */
+        .gallery-card {
+            background: var(--card);
+            padding: 24px;
+            border-radius: 20px;
+            box-shadow: 0 6px 18px rgba(17,24,39,0.1);
+            margin-bottom: 30px;
+        }
+        .gallery-card h2 {
+            margin: 0 0 16px 0;
+            font-size: 1.6rem;
+            color: var(--accent);
+            text-align: center;
+        }
+
+        /* Horizontal scroller */
+        .gallery-scroll {
+            display: flex;
+            flex-direction: row;
+            overflow-x: auto;
+            gap: 30px;
+            padding: 20px 10px;
+            scroll-behavior: smooth;
+            cursor: grab;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 30px;
+        }
+        .gallery-scroll:active {
+            cursor: grabbing;
+        }
+
+        /* Gold frame – width adapts to image */
+        .frame {
+            flex: 0 0 auto;
+            background: linear-gradient(135deg, #f9e0a0, #d4af37);
+            padding: 12px;
+            border-radius: 20px;
+            box-shadow: 0 12px 25px rgba(0,0,0,0.3), inset 0 0 0 2px rgba(255,245,180,0.8);
+            transition: transform 0.2s ease;
+            cursor: pointer;
+        }
+        .frame:hover {
+            transform: scale(1.02);
+        }
+        .frame img {
+            height: 260px;
+            width: auto;
+            max-width: none;
+            display: block;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            object-fit: contain;
+        }
+
+        /* Lightbox modal */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            cursor: pointer;
+        }
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            cursor: default;
+        }
+        .close-hint {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--accent);
+            background: rgba(0,0,0,0.6);
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            pointer-events: none;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: var(--accent);
+            font-size: 1.2rem;
+            padding: 40px;
+            width: 100%;
+            background: rgba(0,0,0,0.4);
+            border-radius: 30px;
+        }
+
+        @media (max-width: 680px) {
+            .frame img {
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header"><img src="PageAssets/gallery.png" alt="Header Image"></div>
+    <div class="menu">
+        <a href="index.html">Home</a>
+        <a href="archive.html">Archive</a>
+        <a href="art.html" style="background:#b3551a; color:#FFE484;">Gallery</a>
+        <a href="projects.html">Projects</a>
+        <a href="https://www.tumblr.com/blog/primierhazel">Blog</a>
+        <a href="casino.html">🎰 Casino</a>
+    </div>
+
+    <!-- Multiple galleries will be injected here by JavaScript -->
+    <div id="galleriesContainer"></div>
+
+    <div class="tailer"><img src="PageAssets/ourdayiscoming.png" alt="footer"></div>
+</div>
+
+<!-- Lightbox modal -->
+<div id="lightbox" class="lightbox">
+    <img id="lightboxImg" src="" alt="Enlarged view">
+    <div class="close-hint">✕ Click anywhere outside the image to close</div>
+</div>
+
+<script>
+    // ==================================================
+    // DEFINE MULTIPLE GALLERIES
+    // Each gallery has a title and an array of image paths.
+    // ==================================================
+    const galleries = [
+        {
+            title: "Vooting Collection",
+            images: [
+                "Arts/chevoting.jpg",
+                "Arts/hammer.jpg",
+                "Arts/malcolmx.jpg",
+                "Arts/maovoot.jpg",
+                "Arts/maovooting.png",
+                "Arts/partisanvoting.jpg",
+                "Arts/stalinvoting.png"
+            ]
+        },
+        {
+            title: "JDPON Don Collection",
+            images: [
+                "Arts/JDPONdon1.jpg",
+                "Arts/JDPONdon2.webp",
+                "Arts/JDPONdon3.jpg",
+                "Arts/JDPONdon4.webp",
+                "Arts/JDPONdon5.jpg",
+            ]
+        },
+        /*{
+            title: "SAMPLE GALLERY",
+            images: [
+                "Arts/SAMPLE1.jpg",
+                "Arts/SAMPLE2.png"
+                // Add more as needed
+            ]
+        }*/
+    ];
+
+    // Helper: render a single gallery
+    function renderGallery(gallery, index) {
+        const galleryDiv = document.createElement('div');
+        galleryDiv.className = 'gallery-card';
+        galleryDiv.innerHTML = `<h2>${gallery.title}</h2>`;
+        const scrollDiv = document.createElement('div');
+        scrollDiv.className = 'gallery-scroll';
+        scrollDiv.id = `gallery-scroll-${index}`;
+
+        if (gallery.images.length === 0) {
+            const emptyMsg = document.createElement('div');
+            emptyMsg.className = 'empty-message';
+            emptyMsg.innerText = '✨ No images in this gallery yet. ✨';
+            scrollDiv.appendChild(emptyMsg);
+        } else {
+            gallery.images.forEach(src => {
+                const frame = document.createElement('div');
+                frame.className = 'frame';
+                const img = document.createElement('img');
+                img.src = src;
+                img.alt = gallery.title;
+                img.loading = 'lazy';
+                // Lightbox click handler
+                img.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openLightbox(src);
+                });
+                frame.appendChild(img);
+                scrollDiv.appendChild(frame);
+            });
+        }
+
+        galleryDiv.appendChild(scrollDiv);
+        return galleryDiv;
+    }
+
+    // Lightbox functions
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+
+    function openLightbox(src) {
+        lightboxImg.src = src;
+        lightbox.style.display = 'flex';
+        // Prevent body scroll
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+        lightbox.style.display = 'none';
+        lightboxImg.src = '';
+        document.body.style.overflow = '';
+    }
+
+    // Click on lightbox background closes it
+    lightbox.addEventListener('click', (e) => {
+        if (e.target === lightbox) {
+            closeLightbox();
+        }
+    });
+    // Also allow Escape key to close
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && lightbox.style.display === 'flex') {
+            closeLightbox();
+        }
+    });
+
+    // Drag-to-scroll for each gallery scroll container
+    function enableDragScroll(container) {
+        if (!container) return;
+        let isDown = false;
+        let startX, scrollLeft;
+        container.addEventListener('mousedown', (e) => {
+            isDown = true;
+            container.style.cursor = 'grabbing';
+            startX = e.pageX - container.offsetLeft;
+            scrollLeft = container.scrollLeft;
+        });
+        container.addEventListener('mouseleave', () => {
+            isDown = false;
+            container.style.cursor = 'grab';
+        });
+        container.addEventListener('mouseup', () => {
+            isDown = false;
+            container.style.cursor = 'grab';
+        });
+        container.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - container.offsetLeft;
+            const walk = (x - startX) * 1.2;
+            container.scrollLeft = scrollLeft - walk;
+        });
+        container.style.cursor = 'grab';
+    }
+
+    // Render all galleries and attach drag scroll
+    const containerDiv = document.getElementById('galleriesContainer');
+    containerDiv.innerHTML = '';
+    galleries.forEach((gallery, idx) => {
+        const galleryElement = renderGallery(gallery, idx);
+        containerDiv.appendChild(galleryElement);
+        const scrollContainer = galleryElement.querySelector('.gallery-scroll');
+        if (scrollContainer && gallery.images.length > 0) {
+            enableDragScroll(scrollContainer);
+        }
+    });
+
+    // Optional: if no galleries defined, show a fallback message
+    if (galleries.length === 0) {
+        containerDiv.innerHTML = '<div class="gallery-card"><div class="empty-message">✨ No galleries defined. Please edit the "galleries" array in the script. ✨</div></div>';
+    }
+</script>
+</body>
+</html>
