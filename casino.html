@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Little Macau | Hazeltorium</title>
+    <style>
+        :root {
+            --accent: #ffec1e;
+            --muted: #311616;
+            --card: #ff2f2f;
+            --button: #b61919;
+            font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+        }
+        * { box-sizing: border-box; user-select: none; }
+        body {
+            background: url('casinobg.jpg');
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 30px;
+            margin: 0;
+            color: #FFD966;
+        }
+        .container { max-width: 1200px; margin: 32px auto; padding: 16px; width: 100%; }
+        .header { display: flex; justify-content: center; margin-bottom: 18px; }
+        .header img { max-width: 100%; border-radius: 8px; border: 4px solid var(--accent); }
+        .menu {
+            display: flex;
+            justify-content: center;
+            background: var(--card);
+            border-radius: 10px;
+            padding: 10px 12px;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+        .menu a {
+            display: inline-block;
+            padding: 10px 16px;
+            border-radius: 8px;
+            background: var(--button);
+            text-decoration: none;
+            color: var(--accent);
+            font-weight: 600;
+            transition: 0.2s;
+        }
+        .menu a:hover { background: rgba(37,99,235,0.08); color: white; }
+        
+        /* Casino game styles */
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(560px, 1fr));
+            gap: 28px;
+            justify-items: center;
+            align-items: start;
+        }
+        .game-card {
+            background: rgba(30, 10, 10, 0.85);
+            backdrop-filter: blur(1px);
+            border-radius: 40px;
+            padding: 20px;
+            width: 100%;
+            max-width: 650px;
+            border: 1px solid #c28135;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.5);
+        }
+        .game-title {
+            font-size: 1.9rem;
+            font-weight: bold;
+            text-align: center;
+            background: #3b0a0a;
+            border-radius: 60px;
+            color: #FFE484;
+            padding: 6px 0;
+            margin-bottom: 18px;
+        }
+        .pachinko-area, .race-track-container, .slot-machine, .blackjack-table { width: 100%; }
+        canvas#pachinkoCanvas {
+            background: #2d1a1a;
+            border-radius: 28px;
+            border: 2px solid #e3a145;
+            width: 100%;
+            height: auto;
+            aspect-ratio: 600/400;
+        }
+        .pachinko-control, .horse-control, .bj-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        button {
+            background: #b3551a;
+            border: none;
+            color: #FFEFB9;
+            font-weight: bold;
+            font-size: 1.1rem;
+            padding: 8px 20px;
+            border-radius: 60px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 0 #4a260b;
+            transition: 0.05s linear;
+        }
+        button:active { transform: translateY(2px); box-shadow: 0 1px 0 0 #4a260b; }
+        .score-board {
+            background: #1f0f0a;
+            padding: 6px 15px;
+            border-radius: 40px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            font-family: monospace;
+        }
+        .race-track-container {
+            background: #2a1810;
+            border-radius: 30px;
+            padding: 15px;
+        }
+        .horse-row {
+            background: #3f241c;
+            margin-bottom: 14px;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+        }
+        .horse-name-wrapper { min-width: 170px; flex-shrink: 0; }
+        .horse-name { font-weight: bold; font-size: 1.2rem; color: #FFE484; }
+        .track {
+            flex: 1;
+            background: #4e2c1f;
+            height: 48px;
+            border-radius: 40px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 0 2px #be7a3a;
+        }
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 30%, #f5bc70, #d48c2c);
+            border-radius: 40px;
+            transition: width 0.05s linear;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            font-size: 1.7rem;
+        }
+        .horse-emoji { font-size: 1.7rem; margin-right: 6px; }
+        .finish-flag {
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 8px;
+            background: gold;
+        }
+        .slot-machine {
+            background: #2f1919;
+            border-radius: 50px;
+            padding: 20px;
+        }
+        .reels {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            background: #0e0606;
+            padding: 25px 10px;
+            border-radius: 35px;
+            margin-bottom: 20px;
+        }
+        .reel {
+            background: #fdebb3;
+            width: 100px;
+            height: 120px;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            font-weight: bold;
+            color: #5e2a1a;
+        }
+        .slot-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.3rem;
+            padding: 0 10px;
+            margin-top: 12px;
+        }
+        .blackjack-table {
+            background: #1e5c2c;
+            border-radius: 60px;
+            padding: 20px;
+            background-image: radial-gradient(circle at 10% 30%, #2a7842, #0f401f);
+        }
+        .hand {
+            background: #0f2b14d9;
+            margin: 12px 0;
+            border-radius: 40px;
+            padding: 12px;
+        }
+        .cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 10px 0;
+        }
+        .card-item {
+            background: #fef7e0;
+            border-radius: 16px;
+            padding: 8px 16px;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c1a0c;
+            min-width: 85px;
+            text-align: center;
+        }
+        .winner-message, .bj-message, #slotMsg {
+            background: #2c1410;
+            border-radius: 60px;
+            padding: 8px;
+            text-align: center;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        @media (max-width: 680px) {
+            .reel { width: 70px; height: 90px; font-size: 2.8rem; }
+            .horse-name-wrapper { min-width: 130px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header"><img src="HHHH.png" alt="Hazel's Humorously Hectic Honky-tonk"></div>
+    <div class="menu">
+        <a href="index.html">Home</a>
+        <a href="index.html">Games</a>
+        <a href="index.html">Art</a>
+        <a href="index.html">Projects</a>
+        <a href="https://www.tumblr.com/blog/primierhazel">Blog</a>
+        <a href="casino.html" style="background:#b3551a; color:#FFE484;">🎰 Casino</a>
+    </div>
+
+    <div class="game-grid">
+        <!-- PACHINKO -->
+        <div class="game-card">
+            <div class="game-title">⚙️ PACHINKO</div>
+            <div class="pachinko-area">
+                <canvas id="pachinkoCanvas" width="600" height="400"></canvas>
+                <div class="pachinko-control">
+                    <button id="dropBallBtn">🎯 DROP BALL AT MARKER</button>
+                    <div class="score-board">🏆 SCORE: <span id="pachiScore">0</span></div>
+                    <button id="resetPachiBtn">🧹 RESET SCORE</button>
+                </div>
+                <div id="slotMsg" style="text-align:center; margin-top:12px;">✨ Drop the ball to win! ✨</div>
+            </div>
+        </div>
+
+        <!-- HORSE RACING -->
+        <div class="game-card">
+            <div class="game-title">🐎 HORSE RACING</div>
+            <div class="race-track-container">
+                <div id="horseList"></div>
+                <div class="horse-control">
+                    <button id="startRaceBtn">🏁 START RACE</button>
+                    <button id="resetRaceBtn">🔄 RESET</button>
+                </div>
+                <div id="raceWinnerMsg" class="winner-message">✨ Press RESET for new horses, then START ✨</div>
+            </div>
+        </div>
+
+        <!-- SLOT MACHINE -->
+        <div class="game-card">
+            <div class="game-title">🎰 LUCKY SLOT • JACKPOT</div>
+            <div class="slot-machine">
+                <div class="reels">
+                    <div class="reel" id="reel1">🍒</div>
+                    <div class="reel" id="reel2">🍒</div>
+                    <div class="reel" id="reel3">🍒</div>
+                </div>
+                <div class="slot-info">
+                    <span>💰 CREDITS: <span id="credits">1000</span></span>
+                    <span>🎲 BET: 10</span>
+                    <span>🏆 LAST WIN: <span id="lastWin">0</span></span>
+                </div>
+                <div style="text-align:center; margin-top:10px">
+                    <button id="spinBtn">🌀 SPIN (10 CREDITS)</button>
+                </div>
+                <div id="slotMsg" style="text-align:center; margin-top:12px;">✨ Match 3 to win big! ✨</div>
+            </div>
+        </div>
+
+        <!-- BLACKJACK -->
+        <div class="game-card">
+            <div class="game-title">🃏 BLACKJACK • 21 TABLE</div>
+            <div class="blackjack-table">
+                <div class="hand">
+                    <strong>🤵 DEALER'S HAND</strong>
+                    <div id="dealerCards" class="cards"></div>
+                    <div>Value: <span id="dealerValue">?</span></div>
+                </div>
+                <div class="hand">
+                    <strong>👤 YOUR HAND</strong>
+                    <div id="playerCards" class="cards"></div>
+                    <div>Value: <span id="playerValue">0</span></div>
+                </div>
+                <div class="bj-buttons">
+                    <button id="hitBtn">🃟 HIT</button>
+                    <button id="standBtn">✋ STAND</button>
+                    <button id="dealBtn">🔄 NEW DEAL</button>
+                </div>
+                <div id="bjMessage" class="bj-message">♠️ Press 'NEW DEAL' to start ♣️</div>
+            </div>
+        </div>
+    </div>
+    <footer>☭ Long live the People's Republic of China!  Long live the Great Unity of the Peoples of the World! ☭</footer>
+</div>
+
+<script>
+    // ----------------------------- PACHINKO: RANDOM OFFSET PEGS & SIDE WALLS -----------------------------
+    (function(){
+        const canvas = document.getElementById('pachinkoCanvas');
+        const ctx = canvas.getContext('2d');
+        let width = 600, height = 400;
+        canvas.width = width; canvas.height = height;
+
+        let balls = [];
+        let pachiScore = 0;
+        const scoreSpan = document.getElementById('pachiScore');
+        const dropBtn = document.getElementById('dropBallBtn');
+        const resetScoreBtn = document.getElementById('resetPachiBtn');
+
+        const baseCols = 20, baseRows = 11;
+        const pegRadius = 4;
+        const leftWall = 15, rightWall = width - 15;
+        const topBound = 40, bottomSlotsStart = height - 20;
+        const pegs = [];
+        let minPegX = 9999, maxPegX = -9999;
+        const stepX = (rightWall - leftWall) / (baseCols - 1);
+        const stepY = (bottomSlotsStart - 20 - topBound) / (baseRows - 1);
+        for(let i = 0; i < baseRows; i++){
+            let baseY = topBound + i * stepY;
+            for(let j = 0; j < baseCols; j++){
+                let basicOffset = 5;
+                let baseX = leftWall + j * stepX;
+                let offsetX = (Math.random() - 0.5) * 18 + basicOffset;
+                let offsetY = (Math.random() - 0.5) * 12;
+                let x = baseX + offsetX;
+                let y = baseY + offsetY;
+                x = Math.min(rightWall - pegRadius - 2, Math.max(leftWall + pegRadius + 2, x));
+                y = Math.min(bottomSlotsStart - pegRadius - 8, Math.max(topBound + 5, y));
+                pegs.push({x, y, r: pegRadius});
+                if(x < minPegX) minPegX = x;
+                if(x > maxPegX) maxPegX = x;
+            }
+        }
+        const sliderMin = leftWall + 10;
+        const sliderMax = rightWall - 10;
+        const slots = [
+            { xMin: 0, xMax: width*0.2, points: 10 },
+            { xMin: width*0.2, xMax: width*0.4, points: 20 },
+            { xMin: width*0.4, xMax: width*0.6, points: 50 },
+            { xMin: width*0.6, xMax: width*0.8, points: 20 },
+            { xMin: width*0.8, xMax: width, points: 10 }
+        ];
+        class Ball { constructor(x,y,vx,vy,r=5){ this.x=x; this.y=y; this.vx=vx; this.vy=vy; this.r=r; this.alive=true; } }
+        let currentDropX = (sliderMin+sliderMax)/2, sliderDir=1;
+        function updateSlider(){
+            currentDropX += sliderDir * 2.1;
+            if(currentDropX>=sliderMax){ currentDropX=sliderMax; sliderDir=-1; }
+            else if(currentDropX<=sliderMin){ currentDropX=sliderMin; sliderDir=1; }
+        }
+        function updatePhysics(){
+            for(let b of balls){
+                b.vy+=0.2; b.x+=b.vx; b.y+=b.vy;
+                if(b.x-b.r<0){ b.x=b.r; b.vx=-b.vx*0.65; }
+                if(b.x+b.r>width){ b.x=width-b.r; b.vx=-b.vx*0.65; }
+                if(b.y-b.r<0){ b.y=b.r; b.vy=-b.vy*0.5; }
+                for(let peg of pegs){
+                    const dx=b.x-peg.x, dy=b.y-peg.y, dist=Math.hypot(dx,dy), minDist=b.r+peg.r;
+                    if(dist<minDist){
+                        const angle=Math.atan2(dy,dx), overlap=minDist-dist;
+                        b.x+=Math.cos(angle)*overlap; b.y+=Math.sin(angle)*overlap;
+                        const norm={x:dx/dist,y:dy/dist}, velDotN=b.vx*norm.x+b.vy*norm.y;
+                        if(velDotN<0){ const rest=0.7, newVelN=-velDotN*rest; b.vx+=newVelN*norm.x; b.vy+=newVelN*norm.y; }
+                        b.vx+=(Math.random()-0.5)*0.5; b.vy+=(Math.random()-0.5)*0.3;
+                    }
+                }
+                if(b.y+b.r>=height){
+                    for(let s of slots) if(b.x>=s.xMin && b.x<=s.xMax){ pachiScore+=s.points; scoreSpan.innerText=pachiScore; break; }
+                    b.alive=false;
+                }
+                if(b.y-b.r>height+50) b.alive=false;
+            }
+            balls=balls.filter(b=>b.alive);
+        }
+        function draw(){
+            ctx.clearRect(0,0,width,height);
+            ctx.fillStyle="#3e2018"; ctx.fillRect(0,0,width,height);
+            ctx.strokeStyle="#c97e3a"; ctx.lineWidth=3;
+            ctx.beginPath(); ctx.moveTo(2,0); ctx.lineTo(2,height); ctx.moveTo(width-2,0); ctx.lineTo(width-2,height); ctx.stroke();
+            ctx.fillStyle="#ad6b3b"; ctx.fillRect(0,0,5,height); ctx.fillRect(width-5,0,5,height);
+            for(let peg of pegs){
+                ctx.beginPath(); ctx.arc(peg.x, peg.y, peg.r-0.5,0,Math.PI*2); ctx.fillStyle="#d49c44"; ctx.fill();
+                ctx.beginPath(); ctx.arc(peg.x, peg.y, peg.r-1.5,0,Math.PI*2); ctx.fillStyle="#f5c271"; ctx.fill();
+            }
+            for(let i=0;i<slots.length;i++){ ctx.fillStyle="#bc8f6b"; ctx.fillRect(slots[i].xMin, height-18, slots[i].xMax-slots[i].xMin,18); ctx.fillStyle="#e5b473"; ctx.font="bold 12px monospace"; ctx.fillText(`${slots[i].points}`, slots[i].xMin+10, height-4); }
+            const markerY=22;
+            ctx.beginPath(); ctx.moveTo(currentDropX,markerY-8); ctx.lineTo(currentDropX-6,markerY); ctx.lineTo(currentDropX+6,markerY); ctx.fillStyle="#ffdd99"; ctx.fill();
+            ctx.beginPath(); ctx.arc(currentDropX,markerY-4,5,0,Math.PI*2); ctx.fillStyle="#ffbb55"; ctx.fill();
+            ctx.fillStyle="#FFD966"; ctx.font="bold 14px monospace"; ctx.fillText("▼",currentDropX-4,markerY+3);
+            for(let b of balls){ ctx.beginPath(); ctx.arc(b.x,b.y,b.r-0.5,0,Math.PI*2); ctx.fillStyle="#FFD966"; ctx.fill(); ctx.beginPath(); ctx.arc(b.x,b.y,b.r-1.8,0,Math.PI*2); ctx.fillStyle="#FFB347"; ctx.fill(); }
+        }
+        function dropBall(){ balls.push(new Ball(currentDropX,28,(Math.random()-0.5)*1.6,1.8+Math.random()*1.2,5)); }
+        function animate(){ updateSlider(); updatePhysics(); draw(); requestAnimationFrame(animate); }
+        animate();
+        dropBtn.onclick=dropBall;
+        resetScoreBtn.onclick=()=>{ pachiScore=0; scoreSpan.innerText="0"; };
+    })();
+
+    // ----------------------------- HORSE RACING: RANDOM TWO-PART NAMES -----------------------------
+    (function(){
+        const firstParts=["Blazing","Thunder","Midnight","Golden","Rainbow","Silver","Iron","Shadow","Wild","Storm","Mystic","Royal","Swift","Dancing","Flying","Crimson","Phantom","Velvet","Solar","Lunar"];
+        const secondParts=["Comet","Storm","Shadow","Emperor","Dash","Blaze","Hoof","Lightning","Fury","Thunder","Phoenix","Spirit","Runner","Dancer","Arrow","Stallion","Pegasus","Flame","Glory","Legend"];
+        function randName(){ return firstParts[Math.floor(Math.random()*firstParts.length)]+" "+secondParts[Math.floor(Math.random()*secondParts.length)]; }
+        let horses=[];
+        const container=document.getElementById("horseList");
+        let raceInterval=null, raceActive=false, winnerDeclared=false;
+        function initHorses(){ let arr=[]; for(let i=0;i<5;i++) arr.push({id:i,name:randName(),progress:0,speed:0,bar:null}); return arr; }
+        horses=initHorses();
+        function buildTrack(){
+            container.innerHTML="";
+            horses.forEach(h=>{
+                const row=document.createElement("div"); row.className="horse-row";
+                const nameWrap=document.createElement("div"); nameWrap.className="horse-name-wrapper";
+                const nameSpan=document.createElement("div"); nameSpan.className="horse-name"; nameSpan.setAttribute("data-id",h.id); nameSpan.innerText=h.name;
+                nameWrap.appendChild(nameSpan);
+                const trackDiv=document.createElement("div"); trackDiv.className="track";
+                const progDiv=document.createElement("div"); progDiv.className="progress-bar"; progDiv.style.width="0%";
+                const emoji=document.createElement("span"); emoji.className="horse-emoji"; emoji.innerText="🐎";
+                progDiv.appendChild(emoji);
+                const flag=document.createElement("div"); flag.className="finish-flag";
+                trackDiv.appendChild(progDiv); trackDiv.appendChild(flag);
+                row.appendChild(nameWrap); row.appendChild(trackDiv);
+                container.appendChild(row);
+                h.bar=progDiv; h.progress=0; progDiv.style.width="0%";
+            });
+        }
+        function resetRace(){
+            if(raceInterval) clearInterval(raceInterval);
+            raceActive=false; winnerDeclared=false;
+            horses.forEach(h=>{ h.name=randName(); const sp=document.querySelector(`.horse-name[data-id='${h.id}']`); if(sp) sp.innerText=h.name; h.progress=0; if(h.bar) h.bar.style.width="0%"; });
+            document.getElementById("raceWinnerMsg").innerHTML="🏁 Names refreshed! Press START to race. 🏁";
+        }
+        function startRace(){
+            if(raceActive) return;
+            if(raceInterval) clearInterval(raceInterval);
+            horses.forEach(h=>{ h.progress=0; if(h.bar) h.bar.style.width="0%"; });
+            winnerDeclared=false; raceActive=true;
+            horses.forEach(h=>h.speed=1+Math.random()*3.8);
+            raceInterval=setInterval(()=>{
+                if(!raceActive) return;
+                for(let h of horses){
+                    if(winnerDeclared) break;
+                    let inc=1.3+Math.random()*4.5;
+                    h.progress=Math.min(100,h.progress+inc*(h.speed/2.5));
+                    if(h.bar) h.bar.style.width=h.progress+"%";
+                    if(h.progress>=100 && !winnerDeclared){
+                        winnerDeclared=true; raceActive=false; clearInterval(raceInterval);
+                        document.getElementById("raceWinnerMsg").innerHTML=`🏆 WINNER: ${h.name} 🐎 🏆`;
+                        break;
+                    }
+                }
+                if(winnerDeclared){ raceActive=false; if(raceInterval) clearInterval(raceInterval); }
+            },60);
+        }
+        document.getElementById("startRaceBtn").onclick=startRace;
+        document.getElementById("resetRaceBtn").onclick=()=>{ if(raceInterval) clearInterval(raceInterval); raceActive=false; winnerDeclared=false; horses.forEach(h=>{ h.name=randName(); }); buildTrack(); horses.forEach(h=>{ h.progress=0; if(h.bar) h.bar.style.width="0%"; }); document.getElementById("raceWinnerMsg").innerHTML="✨ New random names! Press START to race. ✨"; };
+        buildTrack();
+    })();
+
+    // ----------------------------- SLOT MACHINE -----------------------------
+    (function(){
+        const reel1=document.getElementById("reel1"), reel2=document.getElementById("reel2"), reel3=document.getElementById("reel3");
+        const creditsSpan=document.getElementById("credits"), lastWinSpan=document.getElementById("lastWin"), slotMsg=document.getElementById("slotMsg"), spinBtn=document.getElementById("spinBtn");
+        const SYMBOLS=["🍒","🍋","🍊","🔔","7️⃣","💎"];
+        const PAYOUTS={"🍒🍒🍒":40,"🍋🍋🍋":35,"🍊🍊🍊":35,"🔔🔔🔔":70,"7️⃣7️⃣7️⃣":150,"💎💎💎":300};
+        let credits=1000, spinning=false;
+        function updateUI(){ creditsSpan.innerText=Math.floor(credits); }
+        function randSym(){ return SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)]; }
+        function anim(reel, final, delay){
+            return new Promise(resolve=>{
+                let cnt=0, maxF=14;
+                const iv=setInterval(()=>{ reel.innerText=randSym(); cnt++; if(cnt>=maxF){ clearInterval(iv); reel.innerText=final; resolve(); } },40);
+                setTimeout(()=>{ clearInterval(iv); reel.innerText=final; resolve(); },delay);
+            });
+        }
+        async function spin(){
+            if(spinning){ slotMsg.innerText="⏳ Wait..."; return; }
+            if(credits<10){ slotMsg.innerText="❌ Not enough credits!"; return; }
+            spinning=true; spinBtn.disabled=true;
+            credits-=10; updateUI(); slotMsg.innerText="🎲 SPINNING... 🎲";
+            const res=[randSym(),randSym(),randSym()];
+            await anim(reel1,res[0],400);
+            await anim(reel2,res[1],400);
+            await anim(reel3,res[2],400);
+            let win=0; const combo=res.join('');
+            if(PAYOUTS[combo]) win=PAYOUTS[combo];
+            else if(res[0]===res[1] && res[1]===res[2]) win=25;
+            else if(res[0]===res[1]||res[1]===res[2]||res[0]===res[2]) win=5;
+            if(win>0){ credits+=win; lastWinSpan.innerText=win; slotMsg.innerHTML=`🎉 WINNER! +${win} credits! 🎉 ${combo}`; }
+            else { lastWinSpan.innerText="0"; slotMsg.innerHTML=`😞 No luck... ${combo} Try again!`; }
+            updateUI(); spinning=false; spinBtn.disabled=false;
+        }
+        spinBtn.onclick=spin; updateUI();
+    })();
+
+    // ----------------------------- BLACKJACK -----------------------------
+    (function(){
+        let deck=[], playerHand=[], dealerHand=[], gameActive=false, playerStood=false;
+        const dealerDiv=document.getElementById("dealerCards"), playerDiv=document.getElementById("playerCards"), dealerVal=document.getElementById("dealerValue"), playerVal=document.getElementById("playerValue"), msgDiv=document.getElementById("bjMessage"), hitBtn=document.getElementById("hitBtn"), standBtn=document.getElementById("standBtn"), dealBtn=document.getElementById("dealBtn");
+        function createDeck(){
+            let suits=["♥","♦","♣","♠"], vals=["2","3","4","5","6","7","8","9","10","J","Q","K","A"], d=[];
+            for(let s of suits) for(let v of vals) d.push({val:v,suit:s,points: (v==='J'||v==='Q'||v==='K'?10: v==='A'?11: parseInt(v))});
+            for(let i=d.length-1;i>0;i--){ let j=Math.floor(Math.random()*(i+1)); [d[i],d[j]]=[d[j],d[i]]; }
+            return d;
+        }
+        function handValue(h){ let sum=0, aces=0; for(let c of h){ sum+=c.points; if(c.val==='A') aces++; } while(sum>21 && aces>0){ sum-=10; aces--; } return sum; }
+        function displayCards(){
+            playerDiv.innerHTML=""; for(let c of playerHand){ let cd=document.createElement("div"); cd.className="card-item"; cd.innerText=`${c.val}${c.suit}`; playerDiv.appendChild(cd); } playerVal.innerText=handValue(playerHand);
+            dealerDiv.innerHTML=""; for(let i=0;i<dealerHand.length;i++){ let cd=document.createElement("div"); cd.className="card-item"; if(!gameActive || (playerStood===false && i===0 && dealerHand.length===2)){ if(i===0 && !playerStood && gameActive) cd.innerText="??"; else cd.innerText=`${dealerHand[i].val}${dealerHand[i].suit}`; } else { cd.innerText=`${dealerHand[i].val}${dealerHand[i].suit}`; } dealerDiv.appendChild(cd); }
+            if(gameActive && playerStood) dealerVal.innerText=handValue(dealerHand); else if(!gameActive) dealerVal.innerText=handValue(dealerHand); else dealerVal.innerText="?";
+        }
+        function dealerTurn(){
+            while(handValue(dealerHand)<17) dealerHand.push(deck.pop());
+            displayCards();
+            let pv=handValue(playerHand), dv=handValue(dealerHand);
+            if(dv>21) msgDiv.innerHTML="🎉 Dealer BUST! You win! 🎉";
+            else if(dv>pv) msgDiv.innerHTML="😞 Dealer wins. Better luck next hand.";
+            else if(dv===pv) msgDiv.innerHTML="🤝 PUSH! It's a tie.";
+            else msgDiv.innerHTML="🏆 YOU WIN! Congratulations! 🏆";
+            gameActive=false; hitBtn.disabled=true; standBtn.disabled=true;
+        }
+        function newGame(){
+            deck=createDeck(); playerHand=[deck.pop(),deck.pop()]; dealerHand=[deck.pop(),deck.pop()];
+            gameActive=true; playerStood=false; hitBtn.disabled=false; standBtn.disabled=false;
+            msgDiv.innerHTML="♠️ Game in progress. Hit or Stand? ♥️";
+            displayCards();
+            if(handValue(playerHand)===21){ msgDiv.innerHTML="🎉 BLACKJACK! You win instantly! 🎉"; gameActive=false; hitBtn.disabled=true; standBtn.disabled=true; dealerTurn(); }
+        }
+        function hit(){
+            if(!gameActive) return;
+            playerHand.push(deck.pop()); displayCards();
+            if(handValue(playerHand)>21){ msgDiv.innerHTML="💀 BUST! You lose. 💀"; gameActive=false; hitBtn.disabled=true; standBtn.disabled=true; dealerVal.innerText=handValue(dealerHand); dealerDiv.innerHTML=""; for(let c of dealerHand){ let cd=document.createElement("div"); cd.className="card-item"; cd.innerText=`${c.val}${c.suit}`; dealerDiv.appendChild(cd); } }
+        }
+        function stand(){ if(!gameActive) return; playerStood=true; hitBtn.disabled=true; standBtn.disabled=true; displayCards(); dealerTurn(); }
+        dealBtn.onclick=newGame; hitBtn.onclick=hit; standBtn.onclick=stand;
+        newGame();
+    })();
+</script>
+</body>
+</html>
