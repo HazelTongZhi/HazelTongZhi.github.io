@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Gallery | The Hazeltorium</title>
     <style>
         :root {
@@ -13,10 +13,15 @@
             font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
         }
 
+        * {
+            box-sizing: border-box;
+        }
+
         .container {
             max-width: 1400px;
             margin: 32px auto;
             padding: 16px;
+            width: 100%;
         }
 
         body {
@@ -30,6 +35,7 @@
             flex-direction: column;
             align-items: center;
             padding-top: 30px;
+            margin: 0;
         }
 
         .header {
@@ -42,7 +48,6 @@
             max-width: 100%;
             height: auto;
             border-radius: 8px;
-            box-shadow: 0 6px 18px rgba(17,24,39,0.06);
             border: 4px solid var(--accent);
         }
 
@@ -56,7 +61,6 @@
         .tailer img {
             max-width: 100%;
             height: auto;
-            box-shadow: 0 6px 18px rgba(17,24,39,0.06);
         }
 
         .menu {
@@ -66,21 +70,18 @@
             border-radius: 10px;
             padding: 10px 12px;
             gap: 8px;
-            box-shadow: 0 4px 14px rgba(17,24,39,0.04);
             margin-bottom: 18px;
             flex-wrap: wrap;
         }
         .menu a {
             display: inline-block;
-            border: 0;
             padding: 10px 16px;
             border-radius: 8px;
             background: var(--button);
-            cursor: pointer;
-            font-weight: 600;
             text-decoration: none;
             color: var(--accent);
-            transition: background 0.2s, color 0.2s;
+            font-weight: 600;
+            transition: 0.2s;
         }
         .menu a:hover {
             background: rgba(37,99,235,0.08);
@@ -91,7 +92,6 @@
             background: var(--card);
             padding: 24px;
             border-radius: 20px;
-            box-shadow: 0 6px 18px rgba(17,24,39,0.1);
             margin-bottom: 30px;
         }
         .gallery-card h2 {
@@ -112,6 +112,7 @@
             cursor: grab;
             background: rgba(0, 0, 0, 0.2);
             border-radius: 30px;
+            -webkit-overflow-scrolling: touch;
         }
         .gallery-scroll:active {
             cursor: grabbing;
@@ -136,12 +137,10 @@
             max-width: none;
             display: block;
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             object-fit: contain;
-            /* Disable native image dragging */
             -webkit-user-drag: none;
             user-select: none;
-            pointer-events: auto;  /* keep clickable for lightbox */
+            pointer-events: auto;
         }
 
         /* Lightbox modal */
@@ -163,7 +162,6 @@
             max-height: 90%;
             object-fit: contain;
             border-radius: 12px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
             cursor: default;
         }
         .close-hint {
@@ -189,9 +187,57 @@
             border-radius: 30px;
         }
 
-        @media (max-width: 680px) {
+        /* ===== RESPONSIVE STYLES ===== */
+        @media (max-width: 768px) {
+            .container {
+                margin: 16px auto;
+                padding: 12px;
+            }
+            .gallery-card {
+                padding: 18px;
+            }
+            .gallery-card h2 {
+                font-size: 1.3rem;
+            }
             .frame img {
-                height: 200px;
+                height: 160px;
+            }
+            .gallery-scroll {
+                gap: 20px;
+                padding: 15px 8px;
+            }
+            .frame {
+                padding: 8px;
+            }
+            .menu a {
+                padding: 6px 12px;
+                font-size: 0.85rem;
+            }
+            .close-hint {
+                font-size: 0.7rem;
+                bottom: 15px;
+                white-space: nowrap;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .frame img {
+                height: 130px;
+            }
+            .gallery-scroll {
+                gap: 15px;
+                padding: 12px 6px;
+            }
+            .menu {
+                gap: 5px;
+            }
+            .menu a {
+                padding: 5px 10px;
+                font-size: 0.8rem;
+            }
+            .close-hint {
+                font-size: 0.65rem;
+                padding: 4px 10px;
             }
         }
     </style>
@@ -208,22 +254,19 @@
         <a href="casino.html">🎰 Casino</a>
     </div>
 
-    <!-- Multiple galleries will be injected here by JavaScript -->
     <div id="galleriesContainer"></div>
 
     <div class="tailer"><img src="PageAssets/ourdayiscoming.png" alt="footer"></div>
 </div>
 
-<!-- Lightbox modal -->
 <div id="lightbox" class="lightbox">
     <img id="lightboxImg" src="" alt="Enlarged view">
-    <div class="close-hint">✕ Click anywhere outside the image to close</div>
+    <div class="close-hint">✕ Tap outside to close</div>
 </div>
 
 <script>
     // ==================================================
     // DEFINE MULTIPLE GALLERIES
-    // Each gallery has a title and an array of image paths.
     // ==================================================
     const galleries = [
         {
@@ -247,18 +290,9 @@
                 "Arts/JDPONdon4.webp",
                 "Arts/JDPONdon5.jpg",
             ]
-        },
-        /*{
-            title: "SAMPLE GALLERY",
-            images: [
-                "Arts/SAMPLE1.jpg",
-                "Arts/SAMPLE2.png"
-                // Add more as needed
-            ]
-        }*/
+        }
     ];
 
-    // Helper: render a single gallery
     function renderGallery(gallery, index) {
         const galleryDiv = document.createElement('div');
         galleryDiv.className = 'gallery-card';
@@ -280,9 +314,7 @@
                 img.src = src;
                 img.alt = gallery.title;
                 img.loading = 'lazy';
-                // Prevent native image drag
                 img.draggable = false;
-                // Lightbox click handler
                 img.addEventListener('click', (e) => {
                     e.stopPropagation();
                     openLightbox(src);
@@ -291,19 +323,16 @@
                 scrollDiv.appendChild(frame);
             });
         }
-
         galleryDiv.appendChild(scrollDiv);
         return galleryDiv;
     }
 
-    // Lightbox functions
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightboxImg');
 
     function openLightbox(src) {
         lightboxImg.src = src;
         lightbox.style.display = 'flex';
-        // Prevent body scroll
         document.body.style.overflow = 'hidden';
     }
 
@@ -313,24 +342,16 @@
         document.body.style.overflow = '';
     }
 
-    // Click on lightbox background closes it
     lightbox.addEventListener('click', (e) => {
-        if (e.target === lightbox) {
-            closeLightbox();
-        }
+        if (e.target === lightbox) closeLightbox();
     });
-    // Also allow Escape key to close
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && lightbox.style.display === 'flex') {
-            closeLightbox();
-        }
+        if (e.key === 'Escape' && lightbox.style.display === 'flex') closeLightbox();
     });
 
-    // Drag-to-scroll for each gallery scroll container
     function enableDragScroll(container) {
         if (!container) return;
-        let isDown = false;
-        let startX, scrollLeft;
+        let isDown = false, startX, scrollLeft;
         container.addEventListener('mousedown', (e) => {
             isDown = true;
             container.style.cursor = 'grabbing';
@@ -355,7 +376,6 @@
         container.style.cursor = 'grab';
     }
 
-    // Render all galleries and attach drag scroll
     const containerDiv = document.getElementById('galleriesContainer');
     containerDiv.innerHTML = '';
     galleries.forEach((gallery, idx) => {
@@ -367,9 +387,8 @@
         }
     });
 
-    // Optional: if no galleries defined, show a fallback message
     if (galleries.length === 0) {
-        containerDiv.innerHTML = '<div class="gallery-card"><div class="empty-message">✨ No galleries defined. Please edit the "galleries" array in the script. ✨</div></div>';
+        containerDiv.innerHTML = '<div class="gallery-card"><div class="empty-message">✨ No galleries defined. Please edit the "galleries" array. ✨</div></div>';
     }
 </script>
 </body>
