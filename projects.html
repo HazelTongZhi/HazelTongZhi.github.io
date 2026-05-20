@@ -1,25 +1,19 @@
-<!--
-Author: Hazel
-This is the main home page.
--->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Hazeltorium</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Projects | The Hazeltorium</title>
     <style>
-        :root{
-        --accent:#ffec1e;
-        --muted:#311616;
-        --card:#ff2f2f;
-        --button: #b61919;
-        font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+        /* (same CSS as before – unchanged) */
+        :root {
+            --accent: #ffec1e;
+            --muted: #311616;
+            --card: #ff2f2f;
+            --button: #b61919;
+            font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
         }
-
-        .container{max-width:1000px;margin:32px auto;padding:16px}
-
+        * { box-sizing: border-box; }
         body {
             font-family: sans-serif;
             background: url('PageAssets/newbanner.png');
@@ -31,157 +25,309 @@ This is the main home page.
             flex-direction: column;
             align-items: center;
             padding-top: 30px;
+            margin: 0;
         }
-
-        /* Header */
-        .header{
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            margin-bottom:18px
+        .container { max-width: 1200px; margin: 32px auto; padding: 16px; width: 100%; }
+        .header { display: flex; justify-content: center; margin-bottom: 18px; }
+        .header img { max-width: 100%; border-radius: 8px; border: 4px solid var(--accent); }
+        .tailer { display: flex; justify-content: center; margin: 30px 0 18px; }
+        .tailer img { max-width: 100%; }
+        .menu {
+            display: flex;
+            justify-content: center;
+            background: var(--card);
+            border-radius: 10px;
+            padding: 10px 12px;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
         }
-        .header img{
-            max-width:100%;
-            height:auto;
-            border-radius:8px;
-            box-shadow:0 6px 18px rgba(17,24,39,0.06);
-            border:4px solid var(--accent)
+        .menu a {
+            display: inline-block;
+            padding: 10px 16px;
+            border-radius: 8px;
+            background: var(--button);
+            text-decoration: none;
+            color: var(--accent);
+            font-weight: 600;
+            transition: 0.2s;
         }
-
-        /* Tailer image */
-        .tailer{
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            margin-bottom:18px
+        .menu a:hover { background: rgba(37,99,235,0.08); color: white; }
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+            margin-top: 20px;
         }
-        .tailer img{
-            max-width:100%;
-            height:auto;
-            box-shadow:0 6px 18px rgba(17,24,39,0.06);
+        .project-card {
+            background: rgba(30, 10, 10, 0.85);
+            backdrop-filter: blur(1px);
+            border-radius: 30px;
+            padding: 20px;
+            border: 1px solid #c28135;
+            box-shadow: 0 12px 25px rgba(0,0,0,0.4);
+            transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
         }
-
-        /* Menu */
-        .menu{
-            display:flex;
-            justify-content:center;
-            background:var(--card);
-            border-radius:10px;
-            padding:10px 12px;
-            gap:8px;
-            box-shadow:0 4px 14px rgba(17,24,39,0.04);
-            margin-bottom:18px
+        .project-card:hover { transform: translateY(-5px); }
+        .project-title {
+            font-size: 1.6rem;
+            font-weight: bold;
+            text-align: center;
+            background: #3b0a0a;
+            border-radius: 60px;
+            color: #FFE484;
+            padding: 6px 0;
+            margin-bottom: 15px;
         }
-        .menu a{
-            display:inline-block;
-            border:0;
-            padding:10px 16px;
-            border-radius:8px;
-            background:var(--button);
-            cursor:pointer;
-            font-weight:600;
-            text-decoration:none;
-            color:var(--accent);
-            transition:background 0.2s,color 0.2s
+        .project-images {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 8px 0;
+            margin-bottom: 15px;
+            scrollbar-width: thin;
         }
-        .menu a:hover{
-            background:rgba(37,99,235,0.08)
+        .project-images img {
+            height: 140px;
+            width: auto;
+            border-radius: 16px;
+            object-fit: cover;
+            border: 2px solid var(--accent);
+            cursor: pointer;
         }
-        .menu a.primary{
-            background:var(--accent);
-            color:white
+        .project-description {
+            background: rgba(0,0,0,0.3);
+            padding: 12px;
+            border-radius: 20px;
+            margin-bottom: 18px;
+            color: #FFEFB9;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            flex-grow: 1;
         }
-        .menu a.primary:hover{
-            background:#1d4ed8;
-            color:white
+        .project-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 8px;
         }
-
-        /* Intro */
-        .card{
-            background:var(--card);
-            padding:18px;
-            border-radius:10px;
-            box-shadow:0 6px 18px rgba(17,24,39,0.04);
-            margin-bottom:14px
+        .project-buttons button {
+            background: #b3551a;
+            border: none;
+            color: #FFEFB9;
+            font-weight: bold;
+            font-size: 0.9rem;
+            padding: 8px 16px;
+            border-radius: 60px;
+            cursor: pointer;
+            box-shadow: 0 3px 0 0 #4a260b;
+            transition: 0.05s linear;
         }
-        h1{
-            margin:0 0 8px 0;
-            font-size:1.4rem
+        .project-buttons button:active { transform: translateY(2px); box-shadow: 0 1px 0 0 #4a260b; }
+        .empty-message {
+            text-align: center;
+            color: var(--accent);
+            font-size: 1.2rem;
+            padding: 50px;
+            background: rgba(0,0,0,0.4);
+            border-radius: 40px;
         }
-        p{
-            margin:0 0 12px 0;
-            color:var(--muted);
-            line-height:1.6
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            cursor: pointer;
         }
-
-        /* Links */
-        .links-section-horizontal, .links-section-vertical {margin-top:12px;}
-        .links-section-horizontal a{
-            display:inline-block;
-            margin-right:12px;
-            margin-bottom:8px;
-            padding:8px 12px;
-            border-radius:8px;
-            background:var(--button);
-            text-decoration:none;
-            color:var(--accent);
-            font-weight:600
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 12px;
         }
-        .links-section-horizontal a:hover{
-            background:rgba(37,99,235,0.08)
-        }
-
-        .links-section-vertical a{
-            display:block;
-            width:fit-content;
-            margin-bottom:10px;
-            padding:8px 12px;
-            border-radius:8px;
-            background:var(--button);
-            text-decoration:none;
-            color:var(--accent);
-            font-weight:600
-        }
-        .links-section-vertical a:hover{
-            background:rgba(37,99,235,0.08)
-        }
-
-        @media (max-width:560px){
-        .menu{flex-wrap:wrap}
-        .menu button{flex:1}
+        @media (max-width: 680px) {
+            .projects-grid { grid-template-columns: 1fr; }
+            .project-title { font-size: 1.3rem; }
+            .project-images img { height: 110px; }
+            .project-buttons button { font-size: 0.8rem; padding: 6px 12px; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <img src="PageAssets/tiananmen2.png" alt="Header Image">
-        </div>
-
-        <!-- Menu bar with buttons -->
-        <div class="menu" role="navigation" aria-label="Main menu">
-            <a href="index.html" style="background:#b3551a; color:#FFE484;">Home</a>
-            <a href="archive.html">Archive</a>
-            <a href="art.html">Gallery</a>
-            <a href="projects.html" style="background:#b3551a; color:#FFE484;">Projects</a>
-            <a href="https://www.tumblr.com/premierhazel?source=share">Blog</a>
-            <a href="casino.html">🎰 Casino</a>
-        </div>
-
-        <!-- Text block 1 -->
-        <section class="card" aria-labelledby="main-heading">
-            <h1 id="main-heading">Under Construction!</h1>
-            <p>
-                Stay tuned for more!
-            </p>
-
-        </section>
-
-        <!-- Desk -->
-        <div class="tailer">
-            <img src="PageAssets/ourdayiscoming.png">
-        </div>
-        
+<div class="container">
+    <div class="menu">
+        <a href="index.html">Home</a>
+        <a href="archive.html">Archive</a>
+        <a href="art.html">Gallery</a>
+        <a href="projects.html" style="background:#b3551a; color:#FFE484;">Projects</a>
+        <a href="https://www.tumblr.com/premierhazel?source=share">Blog</a>
+        <a href="casino.html">🎰 Casino</a>
     </div>
+    <div id="projectsContainer" class="projects-grid"></div>
+    <div class="tailer"><img src="PageAssets/ourdayiscoming.png" alt="footer"></div>
+</div>
+<div id="lightbox" class="lightbox"><img id="lightboxImg" src="" alt="Enlarged view"></div>
+
+<script>
+    // ============================================================
+    // PROJECT DATA – Now supports multiple downloads & external links
+    // ============================================================
+    // FORMATTING
+    /*{ 
+            title: "Sample Project",
+            description: `Description`,
+            images: ["ProjectAssets/sample1.jpg", "ProjectAssets/sample2.png", ...],
+            downloads: [
+                { name: "Button text", url: "ProjectAssets/report.pdf" },
+                { name: "Button text", url: "ProjectAssets/source.zip" },
+                { name: "Button text", url: "ProjectAssets/setup.exe" },
+                 //...
+            ],
+            //null for no link
+            openLinks: [
+                { name: "Button text", url: "https://demo.example.com" },
+                { name: "Button text", url: "https://docs.example.com" },
+                 //...
+            ]
+            //null for no link
+    }*/
+    // ============================================================
+    const projectsData = [
+        
+        {
+            title: "Alien Attack",
+            description: `Really old game I found on an even older flash drive no idea if I made it or not. 
+            I promise it's not a virus; I've played it on my PC multiple times. I'm sorry about the "high scores" name; my 
+            wife thought it was funny ):
+            
+            \n Arrow keys for movement.`,
+            images: ["ProjectAssets/alienattacksc.png"],
+            downloads: [
+                { name: "Downlod Executable", url: "ProjectAssets/Super Alien Attack.exe" }
+            ],
+            openLinks: null
+        },// add comma after every bracket!
+        { 
+            title: "Ferris Wheel for Laser Cutter",
+            description: `Made in May 2023 (before I was a girl!) while taking a robotics course in undergrad.
+            Modeled in Autodesk Inventor and then converted to .dxf files. If I remember it correctly (I only made one and
+            someone stole it before the quarter ended), It stands about 21 cm high and 15 cm across. You can probably convert
+            the .ipt files to .stl somehow and if I figure it out, I will upload the .stl files in a separate project.`,
+            images: ["ProjectAssets/FW.png"],
+            downloads: [
+                { name: "Download .dxf files [.rar]", url: "ProjectAssets/FerrisWheel.rar" },
+                { name: "Download .ipt files [.rar]", url: "ProjectAssets/FW.rar" }
+            ],
+            openLinks: null
+        },
+    ];
+
+    // Lightbox functions (same as before)
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+    function openLightbox(src) { lightboxImg.src = src; lightbox.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+    function closeLightbox() { lightbox.style.display = 'none'; lightboxImg.src = ''; document.body.style.overflow = ''; }
+    lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && lightbox.style.display === 'flex') closeLightbox(); });
+
+    // Create a project card
+    function createProjectCard(project) {
+        const card = document.createElement('div');
+        card.className = 'project-card';
+
+        // Title
+        const titleEl = document.createElement('div');
+        titleEl.className = 'project-title';
+        titleEl.innerText = project.title;
+        card.appendChild(titleEl);
+
+        // Images gallery
+        if (project.images && project.images.length) {
+            const imagesDiv = document.createElement('div');
+            imagesDiv.className = 'project-images';
+            project.images.forEach(src => {
+                const img = document.createElement('img');
+                img.src = src;
+                img.alt = project.title;
+                img.loading = 'lazy';
+                img.addEventListener('click', (e) => { e.stopPropagation(); openLightbox(src); });
+                imagesDiv.appendChild(img);
+            });
+            card.appendChild(imagesDiv);
+        } else {
+            const placeholder = document.createElement('div');
+            placeholder.className = 'project-images';
+            placeholder.style.justifyContent = 'center';
+            placeholder.style.color = '#FFE484';
+            placeholder.innerText = '📷 No preview images';
+            card.appendChild(placeholder);
+        }
+
+        // Description
+        const descDiv = document.createElement('div');
+        descDiv.className = 'project-description';
+        descDiv.innerHTML = project.description;
+        card.appendChild(descDiv);
+
+        // Buttons container
+        const buttonsDiv = document.createElement('div');
+        buttonsDiv.className = 'project-buttons';
+
+        // Multiple download buttons
+        if (project.downloads && project.downloads.length) {
+            project.downloads.forEach(dl => {
+                const btn = document.createElement('button');
+                btn.innerHTML = `⬇️ ${dl.name}`;
+                btn.addEventListener('click', () => {
+                    const a = document.createElement('a');
+                    a.href = dl.url;
+                    a.download = '';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                });
+                buttonsDiv.appendChild(btn);
+            });
+        }
+
+        // Multiple external links (open in new tab)
+        if (project.openLinks && project.openLinks.length) {
+            project.openLinks.forEach(link => {
+                const btn = document.createElement('button');
+                btn.innerHTML = `🔗 ${link.name}`;
+                btn.addEventListener('click', () => {
+                    window.open(link.url, '_blank', 'noopener,noreferrer');
+                });
+                buttonsDiv.appendChild(btn);
+            });
+        }
+
+        card.appendChild(buttonsDiv);
+        return card;
+    }
+
+    // Render all projects
+    const container = document.getElementById('projectsContainer');
+    container.innerHTML = '';
+    if (projectsData.length === 0) {
+        const emptyMsg = document.createElement('div');
+        emptyMsg.className = 'empty-message';
+        emptyMsg.innerText = '✨ No projects yet. Check back soon! ✨';
+        container.appendChild(emptyMsg);
+    } else {
+        projectsData.forEach(project => {
+            container.appendChild(createProjectCard(project));
+        });
+    }
+</script>
 </body>
 </html>
