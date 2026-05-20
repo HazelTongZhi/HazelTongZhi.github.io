@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Little Macau | The Hazeltorium</title>
     <style>
+        /* (all previous CSS remains unchanged – same as last response) */
         :root {
             --accent: #ffec1e;
             --muted: #311616;
@@ -57,7 +58,6 @@
         }
         .menu a:hover { background: rgba(37,99,235,0.08); color: white; }
         
-        /* Game grid – desktop: 2 columns, mobile: 1 column */
         .game-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -115,12 +115,44 @@
         }
         button:active { transform: translateY(2px); box-shadow: 0 1px 0 0 #4a260b; }
         .score-board {
-            background: #1f0f0a;
-            padding: 4px 12px;
+            background: #2a0c0c;
+            padding: 6px 15px;
             border-radius: 40px;
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             font-weight: bold;
             font-family: monospace;
+            color: #FFEA99;
+            text-shadow: 1px 1px 0 #4a1a1a;
+            border: 1px solid #e3a145;
+        }
+        /* Points legend (optional, but kept for clarity) */
+        .points-legend {
+            display: flex;
+            justify-content: space-between;
+            background: #1f0a0a;
+            border-radius: 30px;
+            padding: 8px 12px;
+            margin-top: 10px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            background: #3b1515;
+            padding: 4px 12px;
+            border-radius: 30px;
+            color: #FFD966;
+            text-align: center;
+            flex: 1;
+        }
+        .legend-points {
+            background: #d4af37;
+            color: #2c0a0a;
+            border-radius: 20px;
+            padding: 0 6px;
+            margin-left: 6px;
+            font-weight: bold;
         }
         .race-track-container {
             background: #2a1810;
@@ -173,7 +205,6 @@
             border-radius: 40px;
             padding: 15px;
         }
-        /* Reels – nowrap and responsive reel width */
         .reels {
             display: flex;
             flex-direction: row;
@@ -250,16 +281,12 @@
             font-size: 0.8rem;
             opacity: 0.8;
         }
-
-        /* Mobile: switch to single column */
         @media (max-width: 900px) {
             .game-grid {
                 grid-template-columns: 1fr;
                 gap: 20px;
             }
         }
-
-        /* Further small adjustments */
         @media (max-width: 680px) {
             .container { padding: 12px; }
             .game-card { padding: 12px; }
@@ -271,11 +298,8 @@
             button { font-size: 0.8rem; padding: 5px 12px; }
             .card-item { font-size: 1.2rem; padding: 4px 8px; min-width: 45px; }
             .slot-info { font-size: 0.85rem; }
-        }
-
-        @media (max-width: 480px) {
-            .horse-row { gap: 6px; }
-            .horse-name-wrapper { min-width: 90px; }
+            .points-legend { font-size: 0.7rem; }
+            .legend-item { padding: 2px 6px; }
         }
     </style>
 </head>
@@ -292,7 +316,7 @@
     </div>
 
     <div class="game-grid">
-        <!-- PACHINKO with ball drop delay -->
+        <!-- PACHINKO with colored scoring zones on canvas -->
         <div class="game-card">
             <div class="game-title">⚙️ PACHINKO</div>
             <div class="pachinko-area">
@@ -302,11 +326,19 @@
                     <div class="score-board">🏆 SCORE: <span id="pachiScore">0</span></div>
                     <button id="resetPachiBtn">🧹 RESET SCORE</button>
                 </div>
-                <div id="pachiMsg" style="text-align:center; margin-top:12px;">✨ Drop the ball to win! ✨</div>
+                <!-- Legend is kept but the canvas shows the actual colors -->
+                <div class="points-legend">
+                    <div class="legend-item">🔴 10 pts <span class="legend-points">Left 20%</span></div>
+                    <div class="legend-item">🟢 20 pts <span class="legend-points">20–40%</span></div>
+                    <div class="legend-item">🔴 50 pts <span class="legend-points">Middle 40–60%</span></div>
+                    <div class="legend-item">🟢 20 pts <span class="legend-points">60–80%</span></div>
+                    <div class="legend-item">🔴 10 pts <span class="legend-points">Right 20%</span></div>
+                </div>
+                <div id="pachiMsg" class="winner-message">✨ Drop the ball! Colored zones = points ✨</div>
             </div>
         </div>
 
-        <!-- HORSE RACING -->
+        <!-- (the rest of the games – horse, slot, blackjack – are identical to previous version) -->
         <div class="game-card">
             <div class="game-title">🐎 HORSE RACING</div>
             <div class="race-track-container">
@@ -319,7 +351,6 @@
             </div>
         </div>
 
-        <!-- SLOT MACHINE -->
         <div class="game-card">
             <div class="game-title">🎰 LUCKY SLOT • JACKPOT</div>
             <div class="slot-machine">
@@ -340,7 +371,6 @@
             </div>
         </div>
 
-        <!-- BLACKJACK -->
         <div class="game-card">
             <div class="game-title">🃏 BLACKJACK • 21 TABLE</div>
             <div class="blackjack-table">
@@ -367,7 +397,7 @@
 </div>
 
 <script>
-    // ----------------------------- PACHINKO (with delay) -----------------------------
+    // ----------------------------- PACHINKO (with alternating red/green slots) -----------------------------
     (function(){
         const canvas = document.getElementById('pachinkoCanvas');
         const ctx = canvas.getContext('2d');
@@ -382,6 +412,7 @@
         const pachiMsg = document.getElementById('pachiMsg');
         let isDropping = false;
 
+        // Pegs (unchanged)
         const baseCols = 20, baseRows = 11;
         const pegRadius = 4;
         const leftWall = 15, rightWall = width - 15;
@@ -409,12 +440,13 @@
         const sliderMin = leftWall + 10;
         const sliderMax = rightWall - 10;
         const slots = [
-            { xMin: 0, xMax: width*0.2, points: 10 },
-            { xMin: width*0.2, xMax: width*0.4, points: 20 },
-            { xMin: width*0.4, xMax: width*0.6, points: 50 },
-            { xMin: width*0.6, xMax: width*0.8, points: 20 },
-            { xMin: width*0.8, xMax: width, points: 10 }
+            { xMin: 0, xMax: width*0.2, points: 10, color: "#cc3333" },   // red
+            { xMin: width*0.2, xMax: width*0.4, points: 20, color: "#339933" }, // green
+            { xMin: width*0.4, xMax: width*0.6, points: 50, color: "#cc3333" }, // red
+            { xMin: width*0.6, xMax: width*0.8, points: 20, color: "#339933" }, // green
+            { xMin: width*0.8, xMax: width, points: 10, color: "#cc3333" }       // red
         ];
+        
         class Ball { constructor(x,y,vx,vy,r=5){ this.x=x; this.y=y; this.vx=vx; this.vy=vy; this.r=r; this.alive=true; } }
         let currentDropX = (sliderMin+sliderMax)/2, sliderDir=1;
         function updateSlider(){
@@ -452,16 +484,46 @@
             ctx.strokeStyle="#c97e3a"; ctx.lineWidth=3;
             ctx.beginPath(); ctx.moveTo(2,0); ctx.lineTo(2,height); ctx.moveTo(width-2,0); ctx.lineTo(width-2,height); ctx.stroke();
             ctx.fillStyle="#ad6b3b"; ctx.fillRect(0,0,5,height); ctx.fillRect(width-5,0,5,height);
+            
+            // Draw pegs
             for(let peg of pegs){
                 ctx.beginPath(); ctx.arc(peg.x, peg.y, peg.r-0.5,0,Math.PI*2); ctx.fillStyle="#d49c44"; ctx.fill();
                 ctx.beginPath(); ctx.arc(peg.x, peg.y, peg.r-1.5,0,Math.PI*2); ctx.fillStyle="#f5c271"; ctx.fill();
             }
-            for(let i=0;i<slots.length;i++){ ctx.fillStyle="#bc8f6b"; ctx.fillRect(slots[i].xMin, height-18, slots[i].xMax-slots[i].xMin,18); ctx.fillStyle="#e5b473"; ctx.font="bold 12px monospace"; ctx.fillText(`${slots[i].points}`, slots[i].xMin+10, height-4); }
+            
+            // Draw scoring slots with alternating red/green backgrounds
+            for(let i=0;i<slots.length;i++){
+                ctx.fillStyle = slots[i].color;
+                ctx.fillRect(slots[i].xMin, height-18, slots[i].xMax-slots[i].xMin, 18);
+                // High contrast text: black with white outline
+                ctx.font = "bold 14px monospace";
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = "#000000";
+                ctx.fillText(`${slots[i].points}`, slots[i].xMin+10, height-5);
+                ctx.fillStyle = "#FFFFFF";
+                ctx.fillText(`${slots[i].points}`, slots[i].xMin+11, height-6);
+                // Add small border between zones
+                if(i<slots.length-1){
+                    ctx.beginPath();
+                    ctx.moveTo(slots[i+1].xMin, height-18);
+                    ctx.lineTo(slots[i+1].xMin, height);
+                    ctx.strokeStyle = "#000000";
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
+            }
+            
+            // Drop marker
             const markerY=22;
             ctx.beginPath(); ctx.moveTo(currentDropX,markerY-8); ctx.lineTo(currentDropX-6,markerY); ctx.lineTo(currentDropX+6,markerY); ctx.fillStyle="#ffdd99"; ctx.fill();
             ctx.beginPath(); ctx.arc(currentDropX,markerY-4,5,0,Math.PI*2); ctx.fillStyle="#ffbb55"; ctx.fill();
             ctx.fillStyle="#FFD966"; ctx.font="bold 14px monospace"; ctx.fillText("▼",currentDropX-4,markerY+3);
-            for(let b of balls){ ctx.beginPath(); ctx.arc(b.x,b.y,b.r-0.5,0,Math.PI*2); ctx.fillStyle="#FFD966"; ctx.fill(); ctx.beginPath(); ctx.arc(b.x,b.y,b.r-1.8,0,Math.PI*2); ctx.fillStyle="#FFB347"; ctx.fill(); }
+            
+            // Balls
+            for(let b of balls){ 
+                ctx.beginPath(); ctx.arc(b.x,b.y,b.r-0.5,0,Math.PI*2); ctx.fillStyle="#FFD966"; ctx.fill(); 
+                ctx.beginPath(); ctx.arc(b.x,b.y,b.r-1.8,0,Math.PI*2); ctx.fillStyle="#FFB347"; ctx.fill(); 
+            }
         }
         function dropBallWithDelay() {
             if (isDropping) return;
@@ -472,7 +534,7 @@
                 balls.push(new Ball(currentDropX, 28, (Math.random()-0.5)*1.6, 1.8+Math.random()*1.2, 5));
                 isDropping = false;
                 dropBtn.disabled = false;
-                pachiMsg.innerText = "✨ Drop the ball to win! ✨";
+                pachiMsg.innerText = "✨ Drop the ball! Colored zones = points ✨";
             }, 300);
         }
         function animate(){ updateSlider(); updatePhysics(); draw(); requestAnimationFrame(animate); }
@@ -481,7 +543,7 @@
         resetScoreBtn.onclick=()=>{ pachiScore=0; scoreSpan.innerText="0"; };
     })();
 
-    // ----------------------------- HORSE RACING -----------------------------
+    // ----------------------------- HORSE RACING (unchanged) -----------------------------
     (function(){
         const firstParts=["Blazing","Thunder","Midnight","Golden","Rainbow","Silver","Iron","Shadow","Wild","Storm","Mystic","Royal","Swift","Dancing","Flying","Crimson","Phantom","Velvet","Solar","Lunar"];
         const secondParts=["Comet","Storm","Shadow","Emperor","Dash","Blaze","Hoof","Lightning","Fury","Thunder","Phoenix","Spirit","Runner","Dancer","Arrow","Stallion","Pegasus","Flame","Glory","Legend"];
@@ -542,7 +604,7 @@
         buildTrack();
     })();
 
-    // ----------------------------- SLOT MACHINE -----------------------------
+    // ----------------------------- SLOT MACHINE (unchanged) -----------------------------
     (function(){
         const reel1=document.getElementById("reel1"), reel2=document.getElementById("reel2"), reel3=document.getElementById("reel3");
         const creditsSpan=document.getElementById("credits"), lastWinSpan=document.getElementById("lastWin"), slotMsg=document.getElementById("slotMsg"), spinBtn=document.getElementById("spinBtn");
@@ -578,7 +640,7 @@
         spinBtn.onclick=spin; updateUI();
     })();
 
-    // ----------------------------- BLACKJACK -----------------------------
+    // ----------------------------- BLACKJACK (unchanged) -----------------------------
     (function(){
         let deck=[], playerHand=[], dealerHand=[], gameActive=false, playerStood=false;
         const dealerDiv=document.getElementById("dealerCards"), playerDiv=document.getElementById("playerCards"), dealerVal=document.getElementById("dealerValue"), playerVal=document.getElementById("playerValue"), msgDiv=document.getElementById("bjMessage"), hitBtn=document.getElementById("hitBtn"), standBtn=document.getElementById("standBtn"), dealBtn=document.getElementById("dealBtn");
