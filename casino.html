@@ -57,14 +57,15 @@
         }
         .menu a:hover { background: rgba(37,99,235,0.08); color: white; }
         
-        /* Casino game styles – fully responsive */
+        /* Game grid – desktop: 2 columns, mobile: 1 column */
         .game-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
             justify-items: center;
             align-items: start;
         }
+        
         .game-card {
             background: rgba(30, 10, 10, 0.85);
             backdrop-filter: blur(1px);
@@ -172,24 +173,28 @@
             border-radius: 40px;
             padding: 15px;
         }
+        /* Reels – nowrap and responsive reel width */
         .reels {
             display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
             justify-content: center;
             gap: 15px;
             background: #0e0606;
             padding: 15px 8px;
             border-radius: 30px;
-            flex-wrap: wrap;
+            overflow-x: auto;
         }
         .reel {
             background: #fdebb3;
-            width: 80px;
-            height: 90px;
+            width: min(100px, 20vw);
+            min-width: 60px;
+            aspect-ratio: 1 / 1.2;
             border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
+            font-size: clamp(2rem, 8vw, 4rem);
             font-weight: bold;
             color: #5e2a1a;
         }
@@ -230,7 +235,7 @@
             min-width: 55px;
             text-align: center;
         }
-        .winner-message, .bj-message, #slotMsg {
+        .winner-message, .bj-message, #slotMsg, #pachiMsg {
             background: #2c1410;
             border-radius: 40px;
             padding: 6px;
@@ -246,12 +251,20 @@
             opacity: 0.8;
         }
 
-        /* Responsive adjustments */
+        /* Mobile: switch to single column */
+        @media (max-width: 900px) {
+            .game-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        /* Further small adjustments */
         @media (max-width: 680px) {
             .container { padding: 12px; }
             .game-card { padding: 12px; }
             .game-title { font-size: 1.3rem; }
-            .reel { width: 65px; height: 75px; font-size: 2.5rem; }
+            .reel { min-width: 55px; }
             .horse-name-wrapper { min-width: 110px; }
             .horse-name { font-size: 0.8rem; }
             .progress-bar { font-size: 1.2rem; }
@@ -261,7 +274,6 @@
         }
 
         @media (max-width: 480px) {
-            .game-grid { gap: 15px; }
             .horse-row { gap: 6px; }
             .horse-name-wrapper { min-width: 90px; }
         }
@@ -324,7 +336,7 @@
                 <div style="text-align:center; margin-top:10px">
                     <button id="spinBtn">🌀 SPIN (10 CREDITS)</button>
                 </div>
-                <div id="slotMsg" style="text-align:center; margin-top:12px;">✨ Match 3 to win big! ✨</div>
+                <div id="slotMsg" class="winner-message">✨ Match 3 to win big! ✨</div>
             </div>
         </div>
 
@@ -355,7 +367,7 @@
 </div>
 
 <script>
-    // ----------------------------- PACHINKO: RANDOM OFFSET PEGS & SIDE WALLS + DELAY -----------------------------
+    // ----------------------------- PACHINKO (with delay) -----------------------------
     (function(){
         const canvas = document.getElementById('pachinkoCanvas');
         const ctx = canvas.getContext('2d');
@@ -368,7 +380,7 @@
         const dropBtn = document.getElementById('dropBallBtn');
         const resetScoreBtn = document.getElementById('resetPachiBtn');
         const pachiMsg = document.getElementById('pachiMsg');
-        let isDropping = false;  // prevent multiple rapid drops
+        let isDropping = false;
 
         const baseCols = 20, baseRows = 11;
         const pegRadius = 4;
@@ -451,8 +463,6 @@
             ctx.fillStyle="#FFD966"; ctx.font="bold 14px monospace"; ctx.fillText("▼",currentDropX-4,markerY+3);
             for(let b of balls){ ctx.beginPath(); ctx.arc(b.x,b.y,b.r-0.5,0,Math.PI*2); ctx.fillStyle="#FFD966"; ctx.fill(); ctx.beginPath(); ctx.arc(b.x,b.y,b.r-1.8,0,Math.PI*2); ctx.fillStyle="#FFB347"; ctx.fill(); }
         }
-        
-        // Modified dropBall with delay
         function dropBallWithDelay() {
             if (isDropping) return;
             isDropping = true;
@@ -465,14 +475,13 @@
                 pachiMsg.innerText = "✨ Drop the ball to win! ✨";
             }, 300);
         }
-        
         function animate(){ updateSlider(); updatePhysics(); draw(); requestAnimationFrame(animate); }
         animate();
         dropBtn.onclick = dropBallWithDelay;
         resetScoreBtn.onclick=()=>{ pachiScore=0; scoreSpan.innerText="0"; };
     })();
 
-    // ----------------------------- HORSE RACING: RANDOM TWO-PART NAMES -----------------------------
+    // ----------------------------- HORSE RACING -----------------------------
     (function(){
         const firstParts=["Blazing","Thunder","Midnight","Golden","Rainbow","Silver","Iron","Shadow","Wild","Storm","Mystic","Royal","Swift","Dancing","Flying","Crimson","Phantom","Velvet","Solar","Lunar"];
         const secondParts=["Comet","Storm","Shadow","Emperor","Dash","Blaze","Hoof","Lightning","Fury","Thunder","Phoenix","Spirit","Runner","Dancer","Arrow","Stallion","Pegasus","Flame","Glory","Legend"];
