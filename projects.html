@@ -183,7 +183,8 @@
     // PROJECT DATA – Now supports multiple downloads & external links
     // ============================================================
     // FORMATTING
-    /*{ 
+    /*
+    { 
             title: "Sample Project",
             description: `Description`,
             images: ["ProjectAssets/sample1.jpg", "ProjectAssets/sample2.png", ...],
@@ -200,7 +201,8 @@
                  //...
             ]
             //null for no link
-    }*/
+    }
+            */
     // ============================================================
     const projectsData = [
         
@@ -220,7 +222,7 @@
         { 
             title: "Ferris Wheel for Laser Cutter",
             description: `Made in May 2023 (before I was a girl!) while taking a robotics course in undergrad.
-            Modeled in Autodesk Inventor and then converted to .dxf files. If I remember it correctly (I only made one and
+            Modeled in autodesk inventor and then converted to .dxf files. If I remember it correctly (I only made one and
             someone stole it before the quarter ended), It stands about 21 cm high and 15 cm across. You can probably convert
             the .ipt files to .stl somehow and if I figure it out, I will upload the .stl files in a separate project.`,
             images: ["ProjectAssets/FW.png"],
@@ -241,6 +243,19 @@
             openLinks: [
                 { name: "Open in new tab", url: "ciggygame.html" }
             ]
+        },
+        { 
+            title: "Ferris Wheel for 3D Print",
+            description: `In lieu of the fact that I no longer have access to autodesk inventor, I redesigned the ferris wheel
+            from scratch. This new version stands at approximately 13cm. The design is mostly friction fits with some minor trimming
+            required. See the included README for further instructions.`,
+            images: ["ProjectAssets/FW2.jpg"],
+            downloads: [
+                { name: "Download .stl files [.zip]", url: "ProjectAssets/FWParts.zip" }   
+            ],
+            //null for no link
+            openLinks: null
+            //null for no link
         },
     ];
 
